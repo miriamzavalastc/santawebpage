@@ -1,0 +1,157 @@
+@push('css')
+    <link href="{{ asset('back/plugins/global/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
+@endpush
+<div>
+    <div class="row mb-10 pt-6">
+        <div class="col-sm-12">
+            <h3>Filtros:</h3>
+        </div>
+        <div class="col-sm-12 col-md-4">
+            <div class="mb-5">
+                <label for="search_nombre" class="form-label">Nombre</label>
+                <input type="text" class="form-control" wire:model.defer="search_nombre" id="search_nombre"
+                    placeholder="Nombre..." />
+            </div>
+        </div>
+       
+    
+        <div class="col-sm-12 col-md-4 pt-8">
+            <a href="#" wire:click="applyFilters" class="btn btn-dark">Buscar</a>
+            <a href="#" wire:click="clearFilters" class="btn btn-secondary">Limpiar Filtros</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="row pt-2">
+
+                <div class="col-md-12 col-sm-12 col-xs-6 p-2 px-3 mb-2 d-flex align-items-center">
+                    <span>Mostrar</span>
+                    <select wire:model="perpage" class="mx-2 select-form-table form-select">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                    <span>Registros</span>
+                </div>
+
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table  id="kt_datatable_horizontal_scroll"
+                    class="table table-striped table-row-bordered gy-5 gs-7">
+                    <thead>
+                        <tr class="fw-semibold fs-6 text-gray-800 border-bottom-2 border-gray-200 bg-gray-300 ">
+                           <th>ID</th>
+                            <th>NOMBRE</th>
+                            <th>ICONO</th>
+                            <th style="max-width: 130px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (count($data) > 0)
+                            @foreach ($data as $d)
+                                <tr >
+                                    <td>{{ $d->id }}</td>
+                                    <td>{{ $d->nombre }}</td>
+                                    <td>
+                                      <img src="{{asset($d->icono)}}" width="30px" alt="{{ $d->nombre }}">
+                                    </td>                                   
+                                    <td style="max-width: 130px;">
+                                        <a href="#" class="btn btn-secondary btn-active-light-primary btn-sm"
+                                            data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
+                                            Acciones
+                                            <i class="ki-duotone ki-down fs-5 m-0"></i>
+                                        </a>
+                                        <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-400 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4"
+                                            data-kt-menu="true" style="">
+                                           
+
+                                            <!--begin::Menu item-->
+                                            <div class="menu-item px-3">
+                                                <a href="{{ route('sistema.iconos.edit', $d->id) }}"
+                                                    class="menu-link px-3">
+                                                    Editar
+                                                </a>
+                                            </div>
+                                            <!--end::Menu item-->
+
+                                            <!--begin::Menu item-->
+                                            <div class="menu-item px-3">
+                                                <a href="#"
+                                                    wire:click="$emit('btndeleteIcono',{{ $d->id }})"
+                                                    data-kt-subscriptions-table-filter="delete_row"
+                                                    class="menu-link px-3">
+                                                    Eliminar
+                                                </a>
+                                            </div>
+                                            <!--end::Menu item-->
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @else
+                            <tr>
+                                <td colspan="4" class="text-center">
+                                    <i class="ki-duotone ki-information-3 fs-5x">
+                                        <i class="path1"></i>
+                                        <i class="path2"></i>
+                                        <i class="path3"></i>
+                                    </i> <br>
+                                    <h3>No hay datos para mostrar</h3>
+                                    <br>
+                                    <a href="{{ route('sistema.iconos.create') }}"
+                                        class="btn btn-dark">Registrar
+                                        un
+                                        Icono</a>
+                                </td>
+                            </tr>
+
+                        @endif
+
+                    </tbody>
+                </table>
+
+
+            </div>
+        </div>
+        <div class="card-footer">
+            {{ $data->links() }}
+        </div>
+    </div>
+</div>
+
+@push('js')
+    <script src="{{ asset('back/plugins/global/plugins.bundle.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/gh/livewire/sortable@v0.x.x/dist/livewire-sortable.js"></script>
+    <script>
+        window.addEventListener('dropCreate', function(e) {
+            KTMenu.createInstances();
+            KTMenu.updateDropdowns();
+        });
+        Livewire.on('btndeleteIcono', dataID => {
+            Swal.fire({
+                title: '¿Seguro que deseas eliminar el registro?',
+                text: "¡No podrás revertir esto!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#212529',
+                cancelButtonColor: '#e74a3b',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Livewire.emit('deleteIcono', dataID);
+                    Swal.fire({
+                        title: 'Eliminado',
+                        confirmButtonColor: '#212529',
+                        icon: 'success',
+                    })
+                }
+            })
+        });
+    </script>
+@endpush
